@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.graphics.SurfaceTexture
 import android.hardware.Camera
 import android.os.Build
@@ -161,13 +162,36 @@ class CameraFragment : Fragment(), TextureView.SurfaceTextureListener, View.OnCl
             return
         }
 //        data: mang buy chua anh
-        camera?.takePicture(null, null, null, object : Camera.PictureCallback{
-            override fun onPictureTaken(data: ByteArray?, c: Camera?) {
+        camera?.takePicture(null, object : Camera.PictureCallback{
+            override fun onPictureTaken(data: ByteArray?, p1: Camera?) {
+                if (data == null){
+                    return
+                }
                 val pathFile = Environment.getExternalStorageDirectory().path + "/" +
                         Environment.DIRECTORY_PICTURES + "/" + Date().time.toString() + ".jpg"
                 val bm = BitmapFactory.decodeByteArray(data, 0, data!!.size)
                 val out = FileOutputStream(pathFile)
                 bm.compress(Bitmap.CompressFormat.JPEG, 100, out)
+                out.close()
+                camera?.stopPreview()
+                camera?.release()
+                camera = null
+                openCamera()
+                Toast.makeText(requireContext(), "Finish save", Toast.LENGTH_LONG).show()
+            }
+        }, object : Camera.PictureCallback{
+            override fun onPictureTaken(data: ByteArray?, p1: Camera?) {
+                val pathFile = Environment.getExternalStorageDirectory().path + "/" +
+                        Environment.DIRECTORY_PICTURES + "/" + Date().time.toString() + ".jpg"
+                val bm = BitmapFactory.decodeByteArray(data, 0, data!!.size)
+//                quay anh
+                val matrix = Matrix()
+                matrix.postRotate(90.toFloat())
+                val bmRotate = Bitmap.createBitmap(bm, 0, 0, bm.width, bm.height, matrix, true)
+                bm.recycle()
+
+                val out = FileOutputStream(pathFile)
+                bmRotate.compress(Bitmap.CompressFormat.JPEG, 100, out)
                 out.close()
                 camera?.stopPreview()
                 camera?.release()

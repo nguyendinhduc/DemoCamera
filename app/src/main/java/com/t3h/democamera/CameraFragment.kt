@@ -11,10 +11,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
-import android.view.LayoutInflater
-import android.view.TextureView
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
@@ -89,7 +86,7 @@ class CameraFragment : Fragment(), TextureView.SurfaceTextureListener, View.OnCl
         }
         val cameraInfo = Camera.CameraInfo()
         Camera.getCameraInfo(Camera.CameraInfo.CAMERA_FACING_BACK, cameraInfo)
-
+        setOrientationCamera(cameraInfo)
         val ps = camera!!.parameters
         val pr = ps.supportedPreviewSizes
         val pp = ps.supportedPictureSizes
@@ -111,6 +108,29 @@ class CameraFragment : Fragment(), TextureView.SurfaceTextureListener, View.OnCl
         camera?.startPreview()
 
     }
+
+    private fun setOrientationCamera(cameraInfo: Camera.CameraInfo) {
+        //huong giao dien
+        val rotation: Int = requireActivity().getWindowManager().getDefaultDisplay()
+            .getRotation()
+        var degrees = 0
+        when (rotation) {
+            Surface.ROTATION_0 -> degrees = 0
+            Surface.ROTATION_90 -> degrees = 90
+            Surface.ROTATION_180 -> degrees = 180
+            Surface.ROTATION_270 -> degrees = 270
+        }
+        var result: Int
+        if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            result = (cameraInfo.orientation + degrees) % 360
+            result = (360 - result) % 360 // compensate the mirror
+        } else {  // back-facing
+            result = (cameraInfo.orientation - degrees + 360) % 360
+        }
+        //set huong cho camera
+        camera?.setDisplayOrientation(result)
+    }
+
 
     override fun onSurfaceTextureAvailable(sf: SurfaceTexture, w: Int, h: Int) {
         //sãn sàng nhận dữ liệu từ camera đổ lên

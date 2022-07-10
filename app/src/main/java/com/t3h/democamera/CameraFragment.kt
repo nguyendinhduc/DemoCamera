@@ -92,6 +92,7 @@ class CameraFragment : Fragment(), TextureView.SurfaceTextureListener, View.OnCl
         val pp = ps.supportedPictureSizes
 
 
+
         val ratio = pr[pr.size - 1].width.toFloat() / pr[pr.size - 1].height
         val heiView = ratio * ttCamera.width
         val weiView = ttCamera.width

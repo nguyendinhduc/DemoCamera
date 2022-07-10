@@ -20,6 +20,7 @@
         android:theme="@style/Theme.DemoCamera"
         tools:targetApi="31">
         <activity
+            android:screenOrientation="landscape"
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
